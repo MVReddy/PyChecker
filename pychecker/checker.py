@@ -788,7 +788,7 @@ def install_ignore__import__():
 
     _orig__import__ = None
 
-    def __import__(name, globals=None, locals=None, fromlist=None):
+    def __import__(name, globals=None, locals=None, fromlist=None, level=None):
         if globals is None:
             globals = {}
         if locals is None:
@@ -797,7 +797,10 @@ def install_ignore__import__():
             fromlist = ()
 
         try:
-            pymodule = _orig__import__(name, globals, locals, fromlist)
+            if level:
+                pymodule = _orig__import__(name, globals, locals, fromlist, level)
+            else:
+                pymodule = _orig__import__(name, globals, locals, fromlist)
         except ImportError:
             pymodule = NullModule()
             if not _cfg.quiet:
@@ -930,7 +933,7 @@ else :
                 _warnings_cache[w] = 1
         return warnings
 
-    def __import__(name, globals=None, locals=None, fromlist=None):
+    def __import__(name, globals=None, locals=None, fromlist=None, level=None):
         if globals is None:
             globals = {}
         if locals is None:
@@ -939,7 +942,10 @@ else :
             fromlist = []
 
         check = not sys.modules.has_key(name) and name[:10] != 'pychecker.'
-        pymodule = _orig__import__(name, globals, locals, fromlist)
+        if level:
+            pymodule = _orig__import__(name, globals, locals, fromlist, level)
+        else:
+            pymodule = _orig__import__(name, globals, locals, fromlist)
         if check :
             try :
                 # FIXME: can we find a good moduleDir ?
